@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Course Timetable Scheduling</title>
+  <link rel="stylesheet" href="styles/style.css">
+  <script type="text/javascript" src="data/data.json"></script>
+  <script type="text/javascript" src="scripts/_classes.js"></script>
+  <script src="scripts/ga.js"></script>
+</head>
+
+<body onload="load()">
+  <div class="container">
+    <table class="timeTable">
+      <tr>
+        <th>Time Slot</th>
+        <th>Monday</th>
+        <th>Tuesday</th>
+        <th>Wednesday</th>
+        <th>Thursday</th>
+        <th>Friday</th>
+      </tr>
+
+      <tr>
+        <th>8:00-9:00</th>
+        <td class="item" id="m1">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="t1">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="w1">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="th1">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="f1">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+      </tr>
+
+      <tr>
+        <th>9:00-10:00</th>
+        <td class="item" id="m2">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="t2">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="w2">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="th2">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="f2">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+      </tr>
+
+      <tr>
+        <th>10:00-11:00</th>
+        <td class="item" id="m3">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="t3">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="w3">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="th3">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="f3">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+      </tr>
+
+      <tr>
+        <th>11:00-12:00</th>
+        <td class="item" id="m4">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="t4">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="w4">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="th4">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="f4">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+      </tr>
+
+      <tr>
+        <th>12:00-13:00</th>
+        <td class="item" id="m5">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="t5">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="w5">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="th5">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="f5">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+      </tr>
+
+      <tr>
+        <th>13:00-14:00</th>
+        <td class="item" id="m6">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="t6">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="w6">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="th6">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="f6">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+      </tr>
+
+      <tr>
+        <th>14:00-15:00</th>
+        <td class="item" id="m7">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="t7">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="w7">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="th7">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="f7">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+      </tr>
+
+      <tr>
+        <th>15:00-16:00</th>
+        <td class="item" id="m8">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="t8">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="w8">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="th8">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="f8">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+      </tr>
+
+      <tr>
+        <th>16:00-17:00</th>
+        <td class="item" id="m9">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="t9">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="w9">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="th9">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="f9">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+      </tr>
+
+      <tr>
+        <th>17:00-18:00</th>
+        <td class="item" id="m10">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="t10">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="w10">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="th10">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+        <td class="item" id="f10">
+          <span class="room1">0</span>
+          <span class="room2">0</span>
+          <span class="room3">0</span>
+        </td>
+      </tr>
+
+
+    </table>
+    <div class="intro">
+      <div style="background-color: red;width:50px;height:20px;display:inline-block"></div>
+      <h4 style="display:inline-block"> :room1</h4>
+      <div class="empty"></div>
+      <div style="background-color: green;width:50px;height:20px;display:inline-block"></div>
+      <h4 style="display:inline-block"> :room2</h4>
+      <div class="empty"></div>
+      <div style="background-color: blue;width:50px;height:20px;display:inline-block"></div>
+      <h4 style="display:inline-block"> :room3</h4>
+      <div class="empty"></div>
+      <h5 style="word-wrap: break-word">Numbers in each cell indicate the course ID, if two IDs in one cell then there is a time conflict.</h5>
+
+    </div>
+  </div>
+
+</body>
+
+</html>
