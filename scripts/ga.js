@@ -1,24 +1,70 @@
 //global variables
-var genSize = 10;
+var genSize = 300;
 var rooms = readFileRooms();
 var courses = readFileCourses();
 var timeSlots = readFileTS();
-var numOfGens = 2;
+var numOfGens = 1000;
 
 function load(){
+  reset();
+  var improvedList;
+  var loop = 1;
+  while(loop == 1){
+    improvementList = [];
 
-  /*
-  console.log(rooms);
-  console.log(courses);
-  console.log(timeSlots);
-  */
+    //create first generation
+    var firstGen = createFirstGen();
+    var bestFitness = 0;
+    var bestChrom;
+    var index;
+    for(index=0;index<genSize;index++){
+      computeFitness(firstGen[index]);
+      if(firstGen[index].fitness>bestFitness){
+        //console.log(firstGen[index]);
+        bestChrom = firstGen[index];
+        //console.log(bestChrom);
+        bestFitness = bestChrom.fitness;
+      }
+    }
+    console.log(bestChrom.id);
+    var temp = new Chrom(bestChrom.id,bestChrom.genes,bestChrom.fitness,bestChrom.scv,bestChrom.hcv);
+    improvementList.push(bestChrom);
+    //console.log(firstGen);
+    console.log("bestChromID is "+bestChrom.id + " hcv: "+bestChrom.hcv);
 
-  var firstGen = createFirstGen();
-  console.log(firstGen[0]);
+    //var nextGen = createNextGen(firstGen,bestChrom);
 
-  changeText(firstGen[0]);
-  //document.getElementById("m1").textContent = "New text!";
+    var prevGen = firstGen;
+    var bC = bestChrom;
+    var genCount;
+    for(genCount=0;genCount<numOfGens;genCount++){
+      var bF = 0;
+      var nextGen = createNextGen(prevGen,bC);
 
+      var ii;
+      for(ii=0;ii<nextGen.length;ii++){
+        computeFitness(nextGen[ii]);
+        if(nextGen[ii].fitness>bF){
+          bF = nextGen[ii].fitness;
+          bC = nextGen[ii];
+        }
+      }
+      //console.log(bC.fitness);
+      if(bC.fitness > improvementList[improvementList.length-1].fitness){
+        improvementList.push(bC);
+      }
+      console.log("best fitness value at generation "+genCount+" is "+bF+" scv: "+bC.scv+" hcv: "+bC.hcv);
+      prevGen = nextGen;
+
+    }
+
+    if(bC.hcv == 0){
+      loop = 0;
+      changeText(bC);
+    }
+
+  }
+  console.log(improvementList);
 }
 
 //read file functions
@@ -103,6 +149,147 @@ function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
 
+function computeFitness(chrom){
+  var scv = 0;
+  var hcv = 0;
+
+  //soft constraints vios
+  var durationPrefVio = 0
+  var startTimePrefVio = 0
+
+  //hard constraints
+  var roomCapVio = 0
+  var timeConflict = 0
+
+  var tsConflictArray = [];
+  var column;
+  var row;
+  for(row=0;row<3;row++){
+    tsConflictArray[row] = [];
+    for(column=0;column<timeSlots.length;column++){
+      tsConflictArray[row][column] = [];
+    }
+  }
+  //console.log(tsConflictArray);
+
+  var i;
+  for(i=0;i<chrom.genes.length;i++){
+    //compute roomCapVio
+    var requiredRoomCap = courses[parseInt(chrom.genes[i].courseID)-1].capLevel;
+    var actualRoomCap = rooms[parseInt(chrom.genes[i].roomID)-1].capLevel;
+    if(requiredRoomCap > actualRoomCap){
+      roomCapVio = roomCapVio + 1;
+    }
+
+    //compute timeConflict
+    if(tsConflictArray[parseInt(chrom.genes[i].roomID)-1][parseInt(chrom.genes[i].tsID)-1].length != 0){
+      timeConflict = timeConflict + 1;
+    }
+    tsConflictArray[parseInt(chrom.genes[i].roomID)-1][parseInt(chrom.genes[i].tsID)-1].push(chrom.genes[i].courseID);
+
+    //compute durationPrefVio
+    var requiredDuration = parseInt(chrom.genes[i].durationPref);
+    var actualDuration = timeSlots[parseInt(chrom.genes[i].tsID)-1].durationCount;
+    if(requiredDuration != actualDuration){
+      durationPrefVio = durationPrefVio + 1;
+    }
+  }
+
+  //console.log(tsConflictArray);
+
+  hcv = roomCapVio + timeConflict;
+  scv = durationPrefVio + startTimePrefVio;
+
+  chrom.scv = scv;
+  chrom.hcv = hcv;
+  penalty = hcv*21+scv;
+  chrom.fitness = (1 / penalty) ** 2;
+
+}
+
+function createNextGen(prevGen,bestChrom){
+  var nextGen = [];
+  //copy the best chrom from prevGen to nextGen
+  var temp = new Chrom(1,bestChrom.genes,bestChrom.fitness,bestChrom.scv,bestChrom.hcv);
+  nextGen.push(temp);
+  //------------------------------------------
+  //get total amount of fitness
+  var fitnessT = 0;
+  var index;
+  for(index=0;index<prevGen.length;index++){
+    fitnessT = fitnessT+prevGen[index].fitness;
+  }
+
+  var l =[];
+  for(index=0;index<prevGen.length;index++){
+    var numOfIns = Math.floor((prevGen[index].fitness / fitnessT) * 100);
+    var j;
+    for(j=0;j<numOfIns+1;j++){
+      l.push(index);
+    }
+  }
+  //console.log(l);
+
+  for(index=0;index<genSize-1;index++){
+    var newChrom;
+    var parent1 = prevGen[pickOne(l)];
+    var parent2 = prevGen[pickOne(l)];
+
+    //do crossOver
+    newChrom = crossOver(parent1,parent2,index+2);
+
+    //do evolve
+    evolve(newChrom);
+
+    //mutate
+    var ifMutate = getRandomInt(10);
+    if(ifMutate <= 0){
+      mutate(newChrom);
+    }
+
+
+    nextGen.push(newChrom);
+  }
+  return nextGen;
+
+}
+
+function pickOne(l){
+  var i = getRandomInt(l.length);
+  return l[i];
+}
+
+function evolve(chrom){
+  //evolve RoomCap
+    if(chrom.hcv>0){
+      var index;
+      for (index=0;index<chrom.genes.length;index++){
+        if(courses[parseInt(chrom.genes[index].courseID)-1].capLevel > rooms[parseInt(chrom.genes[index].roomID)-1].capLevel){
+          chrom.genes[index].roomID = chrom.genes[index].roomID + 1;
+        }
+      }
+    }
+
+}
+
+function mutate(chrom){
+  chrom = createChrom(chrom.id);
+}
+
+function crossOver(parent1,parent2,id){
+  var midPoint = getRandomInt(20) + 1;
+  var newGenes = [];
+  var i;
+  for(i=0;i<midPoint;i++){
+    newGenes.push(parent1.genes[i]);
+  }
+  for(i=midPoint;i<21;i++){
+    newGenes.push(parent2.genes[i]);
+  }
+  newChrom = new Chrom(id,newGenes,0.00000001,100,100);
+  return newChrom;
+}
+
 //change text functions
 function changeText(chrom){
   var i;
@@ -124,6 +311,14 @@ function changeText(chrom){
     }
     //console.log("i = "+i+" "+idList);
   }
+  var hcv = document.getElementsByClassName("hcv");
+  var scv = document.getElementsByClassName("scv");
+  var fitness = document.getElementsByClassName("fitness");
+  hcv[0].innerHTML = "hcv: " + chrom.hcv;
+  scv[0].innerHTML = "scv: " + chrom.scv;
+  fitness[0].innerHTML = "fitness: " + chrom.fitness;
+
+
   return 0;
 }
 
@@ -162,4 +357,20 @@ function getIDList(curGene){
   }
 
   return result;
+}
+
+function reset(){
+  var r1 = document.getElementsByClassName("room1");
+  var r2 = document.getElementsByClassName("room2");
+  var r3 = document.getElementsByClassName("room3");
+  var i;
+  for(i=0;i<r1.length;i++){
+    r1[i].innerHTML = 0;
+  }
+  for(i=0;i<r2.length;i++){
+    r2[i].innerHTML = 0;
+  }
+  for(i=0;i<r3.length;i++){
+    r3[i].innerHTML = 0;
+  }
 }

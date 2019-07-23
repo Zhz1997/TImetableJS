@@ -7,10 +7,10 @@
   <link rel="stylesheet" href="styles/style.css">
   <script type="text/javascript" src="data/data.json"></script>
   <script type="text/javascript" src="scripts/_classes.js"></script>
-  <script src="scripts/ga.js"></script>
+  <script type="text/javascript" src="scripts/ga.js"></script>
 </head>
 
-<body onload="load()">
+<body>
   <div class="container">
     <table class="timeTable">
       <tr>
@@ -325,7 +325,14 @@
       <h4 style="display:inline-block"> :room3</h4>
       <div class="empty"></div>
       <h5 style="word-wrap: break-word">Numbers in each cell indicate the course ID, if two IDs in one cell then there is a time conflict.</h5>
-
+      <div class="empty"></div>
+      <button type="button" name="button" onclick="load()">Generate</button>
+      <div class="empty"></div>
+      <h4 style="word-wrap: break-word" class="hcv">hcv: unknown</h5>
+      <div class="empty"></div>
+      <h4 style="word-wrap: break-word" class="scv">scv: unknown</h5>
+      <div class="empty"></div>
+      <h4 style="word-wrap: break-word" class="fitness">fitness: unknown</h5>
     </div>
   </div>
 
