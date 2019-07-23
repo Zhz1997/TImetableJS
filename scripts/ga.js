@@ -4,12 +4,16 @@ var rooms = readFileRooms();
 var courses = readFileCourses();
 var timeSlots = readFileTS();
 var numOfGens = 1000;
+var hcvPoints;
+var scvPoints;
 
 function load(){
   reset();
   var improvedList;
   var loop = 1;
   while(loop == 1){
+    hcvPoints=[];
+    scvPoints=[];
     improvementList = [];
 
     //create first generation
@@ -27,10 +31,18 @@ function load(){
       }
     }
     console.log(bestChrom.id);
-    var temp = new Chrom(bestChrom.id,bestChrom.genes,bestChrom.fitness,bestChrom.scv,bestChrom.hcv);
     improvementList.push(bestChrom);
     //console.log(firstGen);
     console.log("bestChromID is "+bestChrom.id + " hcv: "+bestChrom.hcv);
+    var hcvPoint = [];
+    var scvPoint = [];
+    hcvPoint.push(0);
+    hcvPoint.push(bestChrom.hcv);
+    scvPoint.push(0);
+    scvPoint.push(bestChrom.scv);
+
+    hcvPoints.push(hcvPoint);
+    scvPoints.push(scvPoint);
 
     //var nextGen = createNextGen(firstGen,bestChrom);
 
@@ -51,6 +63,15 @@ function load(){
       }
       //console.log(bC.fitness);
       if(bC.fitness > improvementList[improvementList.length-1].fitness){
+        var hcvPoint = [];
+        var scvPoint = [];
+        hcvPoint.push(genCount+1);
+        hcvPoint.push(bC.hcv);
+        scvPoint.push(genCount+1);
+        scvPoint.push(bC.scv);
+        hcvPoints.push(hcvPoint);
+        scvPoints.push(scvPoint);
+
         improvementList.push(bC);
       }
       console.log("best fitness value at generation "+genCount+" is "+bF+" scv: "+bC.scv+" hcv: "+bC.hcv);
@@ -64,7 +85,11 @@ function load(){
     }
 
   }
-  console.log(improvementList);
+  //console.log(improvementList);
+  //draw result graph
+  var hcvPointsArray = modifyPoints(hcvPoints);
+  var scvPointsArray = modifyPoints(scvPoints);
+  drawGraph(hcvPointsArray,scvPointsArray);
 }
 
 //read file functions
@@ -373,4 +398,58 @@ function reset(){
   for(i=0;i<r3.length;i++){
     r3[i].innerHTML = 0;
   }
+}
+
+//draw graph
+function drawGraph(hcvPointsArray,scvPointsArray){
+  var chart = new CanvasJS.Chart("chartContainer", {
+	theme: "light2",
+	title:{
+		text: "Result"
+	},
+	axisY:{
+		title:"Number of Violations"
+	},
+  axisX:{
+		title:"Number of Generation"
+	},
+  legend: {
+		cursor: "pointer",
+		verticalAlign: "top",
+		horizontalAlign: "center",
+		dockInsidePlotArea: true,
+		itemclick: toogleDataSeries
+	},
+	data: [{
+		type: "line",
+		name: "HCV",
+		showInLegend: true,
+		dataPoints: hcvPointsArray
+	},
+  {
+    type: "line",
+    name: "SCV",
+    showInLegend: true,
+    dataPoints: scvPointsArray
+  }]
+});
+chart.render();
+
+function toogleDataSeries(e){
+	if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+		e.dataSeries.visible = false;
+	} else{
+		e.dataSeries.visible = true;
+	}
+	chart.render();
+}
+}
+
+function modifyPoints(points){
+  var array=[];
+  var i;
+  for(i=0;i<points.length;i++){
+    array.push({x:points[i][0],y:points[i][1]})
+  }
+  return array;
 }
