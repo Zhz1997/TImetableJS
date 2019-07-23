@@ -6,6 +6,7 @@ var timeSlots = readFileTS();
 var numOfGens = 1000;
 var hcvPoints;
 var scvPoints;
+var improvementList;
 
 function load(){
   reset();
@@ -81,7 +82,7 @@ function load(){
 
     if(bC.hcv == 0){
       loop = 0;
-      changeText(bC);
+      changeText(bC,0,hcvPoints[hcvPoints.length-1][0]);
     }
 
   }
@@ -90,6 +91,8 @@ function load(){
   var hcvPointsArray = modifyPoints(hcvPoints);
   var scvPointsArray = modifyPoints(scvPoints);
   drawGraph(hcvPointsArray,scvPointsArray);
+  addList(improvementList,hcvPoints);
+  console.log(improvementList);
 }
 
 //read file functions
@@ -262,6 +265,7 @@ function createNextGen(prevGen,bestChrom){
 
     //do crossOver
     newChrom = crossOver(parent1,parent2,index+2);
+    //computeFitness(newChrom);
 
     //do evolve
     evolve(newChrom);
@@ -294,7 +298,48 @@ function evolve(chrom){
         }
       }
     }
+    //try to improve scv
+/*
+    else{
+      var firstDPV;
+      var firstDPVIndex;
+      var secondDPV;
+      var secondDPVIndex;
+      var geneDPVList = [];
 
+      var i;
+      for(i=0;i<chrom.genes.length;i++){
+        if(chrom.genes[i].durationPref != timeSlots[parseInt(chrom.genes[i].tsID)-1]){
+          geneDPVList.push([chrom.genes[i],i])
+        }
+      }
+
+      var dpv1 = pickOne(geneDPVList);
+      firstDPV = dpv1[0];
+      firstDPVIndex = dpv1[1];
+
+      geneDPVList = removeElement(geneDPVList,dpv1);
+
+      dpv2 = pickOne(geneDPVList);
+      secondDPV = dpv2[0];
+      secondDPVIndex = dpv2[1]
+
+      var tempGene = secondDPV;
+      chrom.genes[secondDPVIndex] = firstDPV;
+      chrom.genes[firstDPVIndex] = tempGene;
+    }
+    */
+
+}
+
+function removeElement(geneDPVList,firstDPV){
+  var l = geneDPVList;
+  for(var i=0;i<geneDPVList.length;i++){
+    if(geneDPVList[i] === firstDPV){
+      l.splice(i,1);
+    }
+  }
+  return l;
 }
 
 function mutate(chrom){
@@ -316,7 +361,8 @@ function crossOver(parent1,parent2,id){
 }
 
 //change text functions
-function changeText(chrom){
+function changeText(chrom,resetImprovList,gen){
+  reset(resetImprovList);
   var i;
   for(i=0;i<chrom.genes.length;i++){
     var curGene = chrom.genes[i];
@@ -339,10 +385,17 @@ function changeText(chrom){
   var hcv = document.getElementsByClassName("hcv");
   var scv = document.getElementsByClassName("scv");
   var fitness = document.getElementsByClassName("fitness");
+  var display = document.getElementsByClassName("display");
   hcv[0].innerHTML = "hcv: " + chrom.hcv;
   scv[0].innerHTML = "scv: " + chrom.scv;
   fitness[0].innerHTML = "fitness: " + chrom.fitness;
 
+  if(gen == hcvPoints[hcvPoints.length-1][0]){
+    display[0].innerHTML = "Current Display: Generation " + gen + "(final result)";
+  }
+  else{
+    display[0].innerHTML = "Current Display: Generation " + gen;
+  }
 
   return 0;
 }
@@ -384,7 +437,14 @@ function getIDList(curGene){
   return result;
 }
 
-function reset(){
+function reset(resetImprovList){
+  if(resetImprovList == 1){
+    improvementList=[];
+    hcvPointsArray = [];
+    scvPointsArray = [];
+    //scvPoints = [];
+    //hcvPoints = [];
+  }
   var r1 = document.getElementsByClassName("room1");
   var r2 = document.getElementsByClassName("room2");
   var r3 = document.getElementsByClassName("room3");
@@ -452,4 +512,43 @@ function modifyPoints(points){
     array.push({x:points[i][0],y:points[i][1]})
   }
   return array;
+}
+
+//show improvedList
+function addList(improvementList,hcvPoints){
+  var listContainer = document.getElementById ('listContainer');
+  listContainer.innerHTML = "";
+  var content = "";
+  var t = improvementList[0];
+  var i = 0;
+  for(i=0;i<improvementList.length;i++){
+    console.log(improvementList[i]);
+    /*
+    var chrom = improvementList[i];
+    console.log(typeof(chrom));
+    content = content+"<br />"+
+    "<button type='button' name='button' onclick='changeText(\""+chrom+"\")'>display"+i+"</button>"+
+    "<h4 style='display:inline-block;margin:0'>generation "+hcvPoints[i][0]+": hcv = " + improvementList[i].hcv + " ;scv = " + improvementList[i].scv + "</h4>";
+    */
+
+    var o=document.createElement("div");
+    var button = document.createElement("button");
+    o.innerHTML = "Generation "+hcvPoints[i][0]+": "+"hcv: "+improvementList[i].hcv+"; scv: "+improvementList[i].scv+"   ";
+    button.text = i;
+    button.gen = hcvPoints[i][0];
+    button.innerHTML = "Display";
+    button.onclick=function(e){
+      console.log(e.target.innerHTML);
+      changeText(improvementList[e.target.text],1,e.target.gen);
+    }
+    o.appendChild(button);
+    listContainer.appendChild(o);
+  }
+  //listContainer.innerHTML = content;
+  //listContainer.innerHTML = "<br />"+"<button type='button' style='float:right' name='button' onclick='load()''>display</button><h4 style='float:right;display:inline-block;margin:0'>generation 1: hcv=12; scv=123</h4>"+"<br />"+"<button type='button' style='float:right' name='button' onclick='load()''>Show</button><h4 style='float:right;display:inline-block;margin:0'>asdgasdgasdg</h4><div class='empty'></div><button type='button' style='float:right' name='button' onclick='load()''>Show</button><h4 style='float:right;display:inline-block;margin:0'>asdgasdgasdg</h4>";
+  //changeText(\""+chrom+"\")
+}
+
+function test(){
+  alert("agsd");
 }
